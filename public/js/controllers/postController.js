@@ -1,9 +1,15 @@
 app.controller('PostController', function($scope, postFactory) {
 
   $scope.addPost = function() {
-    //todo
+    postFactory.addPost($scope.newPost)
+      .then(function(post) {
+        $scope.posts.push(post);
+      })
+      //this is new
+      .catch(function(err) {
+        alert(err.data.message)
+      });
   }
-
   $scope.upvote = function() {
     //todo
   }
@@ -13,6 +19,19 @@ app.controller('PostController', function($scope, postFactory) {
   }
 
   $scope.deletePost = function() {
-    //extension todo - only for admins
+    var self = this;
+    postFactory.deletePost(this.post)
+      .then(function(response) {
+        $scope.posts.splice(self.$index, 1);
+      })
+      //this is new
+      .catch(function(err) {
+        alert(err.data.message)
+      });
   }
-});
+
+    postFactory.getPosts().then(function(posts) {
+    $scope.posts = posts;
+  });
+
+  });
