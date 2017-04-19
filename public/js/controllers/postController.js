@@ -10,12 +10,12 @@ app.controller('PostController', function($scope, postFactory) {
         alert(err.data.message)
       });
   }
-  $scope.upvote = function() {
-    //todo
+  $scope.upvote = function(post) {
+    postFactory.addUpvotesToPost(post);
   }
 
-  $scope.downvote = function() {
-    //todo
+  $scope.downvote = function(post) {
+    postFactory.addDownvotesToPost(post);
   }
 
   $scope.deletePost = function() {

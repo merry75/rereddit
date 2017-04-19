@@ -9,7 +9,7 @@ var postSchema = new Schema ({
  text: String,
  author: String,
  upvotes: Number,
- comments: [comment]
+ comments: [comment.schema]
 });
 
 var post = mongoose.model("post", postSchema);

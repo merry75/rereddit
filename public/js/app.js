@@ -39,3 +39,10 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
   $urlRouterProvider.otherwise('home');
 
 });
+
+app.run(function($rootScope) {
+  var user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    $rootScope.currentUser = user.name;
+  }
+});

@@ -11,6 +11,7 @@
 var express = require('express');
 var router = express.Router();
 var Post = require("../models/postModel");
+var Comment = require("../models/commentModel")
 var expressJWT = require('express-jwt');
 var ensureAuthenticated = expressJWT({ secret: 'thisIsTopSecret'});
 
@@ -51,12 +52,26 @@ router.get('/:id', function(req, res, next) {
   });
 });
 
-router.put('/:id', ensureAuthenticated, function(req, res, next) {
-  Post.findByIdAndUpdate(req.params.id, req.body, { new: true }, function(error, post) {
+router.get('/:id/comments', ensureAuthenticated, function(req, res, next) {
+  Post.findById(req.params.id, function(error, post) {
     if (error) {
       console.error(error)
       return next(error);
     } else {
+      res.send(post);
+    }
+  });
+});
+
+//upvote downvote for posts
+router.put('/:id', ensureAuthenticated, function(req, res, next) {
+  console.log("get to the server");
+  Post.findByIdAndUpdate(req.params.id, {$inc: {upvotes: req.body.vote}}, function(error, post) {
+    if (error) {
+      console.error(error)
+      return next(error);
+    } else {
+      console.log(post);
       res.send(post);
     }
   });
@@ -86,21 +101,53 @@ router.post('/:id/comments', ensureAuthenticated, function(req, res, next) {
         if (err) {
           return next(err);
         } else {
-          res.send(updatedPost);
+          res.json(updatedPost);
         }
       });
     }
   });
 });
 
+//upvote downvote for comments
+// router.put('/comments/:commentid', ensureAuthenticated, function(req, res, next) {
+//   console.log(req.body);
+//   Comment.findByIdAndUpdate(req.params.id, {$inc: {upvotes: req.body.vote}}, function(error, comment) {
+//     if (error) {
+//       console.error(error)
+//       return next(error);
+//     } else {
+//       console.log(comment);
+//       res.send(comment);
+//     }
+//   });
+// });
+
+router.put('/:postid2/comments/:commentid', ensureAuthenticated, function(req,res,next){
+  console.log("server yay")
+  Post.findById(req.params.postid2, function(err, foundPost) {
+    console.log(foundPost);
+    for (var i=0; i< foundPost.comments.length; i++) {
+      if(foundPost.comments[i]._id === req.params.commentid) {
+        if (req.body.vote) {
+        foundPost.comments.upvotes++;
+      } else {
+        foundPost.comments.upvotes--;
+      }
+    }
+  }
+  foundPost.save();
+return res.send(foundPost);
+})
+})
+
 router.delete('/:postid/comments/:commentid', ensureAuthenticated, function(req, res, next) {
-  Post.findById(req.params.beerid, function(err, foundPost) {
+  Post.findById(req.params.postid, function(err, foundPost) {
     if (err) {
       return next(err);
     } else if (!foundPost) {
       return res.send("Error! No post found with that ID");
     } else {
-      var commentToDelete = foundPost.comments.id(req.params.postid)
+      var commentToDelete = foundPost.comments.id(req.params.commentid)
       if (commentToDelete) {
         commentToDelete.remove()
         foundPost.save(function(err, updatedPost) {
