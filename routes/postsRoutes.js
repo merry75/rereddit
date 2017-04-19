@@ -125,19 +125,32 @@ router.post('/:id/comments', ensureAuthenticated, function(req, res, next) {
 router.put('/:postid2/comments/:commentid', ensureAuthenticated, function(req,res,next){
   console.log("server yay")
   Post.findById(req.params.postid2, function(err, foundPost) {
-    console.log(foundPost);
+    //console.log(foundPost);
+    //console.log("comment id:", req.params.commentid);
+    //console.log("req.body.vote:", req.body.vote);
+    //console.log("comments length: ", foundPost.comments.length);
+    //console.log(foundPost.comments.length);
+    //console.log(req.body.vote);
+    //console.log(req.params.commentid);
     for (var i=0; i< foundPost.comments.length; i++) {
-      if(foundPost.comments[i]._id === req.params.commentid) {
+      if(foundPost.comments[i].id === req.params.commentid) {
         if (req.body.vote) {
-        foundPost.comments.upvotes++;
+        foundPost.comments[i].upvotes++;
       } else {
-        foundPost.comments.upvotes--;
+        foundPost.comments[i].upvotes--;
       }
     }
   }
-  foundPost.save();
-return res.send(foundPost);
-})
+  foundPost.save(function(err, updatedComment) {
+    console.log(updatedComment);
+          if (err) {
+            return next(err);
+          } else {
+            res.send(updatedComment);
+          }
+        });
+//return res.send(foundPost);
+  })
 })
 
 router.delete('/:postid/comments/:commentid', ensureAuthenticated, function(req, res, next) {
