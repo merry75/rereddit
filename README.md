@@ -7,3 +7,5 @@ technologies used for this project : HTML5/CSS3/Javascript/MEAN Stack
 
 
 Still a work in progress ...
+
+project deployed on Heroku => https://reddit01.herokuapp.com/home
